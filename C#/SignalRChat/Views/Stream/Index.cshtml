@@ -1,0 +1,43 @@
+﻿@model IEnumerable<SignalRChat.Models.WhatsHappeningModel>
+    
+    @{
+        ViewBag.Title = "Home Page";
+    }
+
+<h2>Index</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.StreamId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProviderName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NameSpace)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.StreamId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProviderName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NameSpace)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", item) |
+            </td>
+        </tr>
+    }
+
+</table>
+
+

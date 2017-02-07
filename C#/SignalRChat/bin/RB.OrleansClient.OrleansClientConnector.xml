@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RB.OrleansClient.OrleansClientConnector</name>
+    </assembly>
+    <members>
+        <member name="T:RB.OrleansClient.ClientGrainFactory">
+            <summary>
+            The Primary use of this assembly is the interface <see cref="T:RB.OrleansClient.IClientGrainFactory"/>. This 
+            concrete implementation should be used "behind the scenes" to setup the Orleans configuration.
+            This should be done by a dependency injection framework like Autofac.
+            
+            Inside Autofac, use one of the <see cref="T:RB.OrleansClient.ClientGrainFactory"/> constructors to create the object.
+            
+            One last note: It is a good idea to use <see cref="M:RB.OrleansClient.OrleansClientConnector.UninitializeOrleans"/>
+            at the exit point of your program.
+            </summary>
+            <remarks>
+            Always try to use Dependency Injection (Autofac, etc.) to create the concrete implementation of this
+            interface: i.e. your constructor looks something like:
+            "MyCommunicationClass(IClientGrainFactory clientGrainFactory)" 
+            </remarks>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.#ctor(Orleans.Runtime.Configuration.ClientConfiguration,System.Int32)">
+            <summary>
+            Concrete implementation of <see cref="T:RB.OrleansClient.IClientGrainFactory"/>. Use Autofac to call this constructor,
+            do not call it directly.
+            </summary>
+            <param name="config">config as code</param>
+            <param name="maxRetries">Number of times to retry after getting a unable to connect</param>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.#ctor(System.IO.FileInfo,System.Int32)">
+            <summary>
+            Concrete implementation of <see cref="T:RB.OrleansClient.IClientGrainFactory"/>. Use Autofac to call this constructor,
+            do not call it directly.
+            </summary>
+            <param name="config">config file</param>
+            <param name="maxRetries">Number of times to retries after getting a unable to connect</param>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.LoadConfiguration(Orleans.Runtime.Configuration.ClientConfiguration,System.Int32)">
+            <summary>Prepare the configuration for a Orleans client using the programmatic configuration style</summary>
+            <param name="config">TheProgrammatic configuration style</param>
+            <param name="maxRetries">Number of times to retries after getting a unable to connect</param>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.LoadConfiguration(System.IO.FileInfo,System.Int32)">
+            <summary>Prepare the configuration for a Orleans client using an Orleans Client XML file style</summary>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.GetGrainFactoryAsync">
+            <summary>Do not call this directly. Concrete implementation of <see cref="M:RB.OrleansClient.IClientGrainFactory.GetGrainFactoryAsync"/>.</summary>
+            <returns>grain factory interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.GetGrainFactory">
+            <summary>Do not call this directly. Concrete implementation of <see cref="M:RB.OrleansClient.IClientGrainFactory.GetGrainFactory"/>.</summary>
+            <returns>grain factory interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.GetStreamProviderAsync(System.String)">
+            <summary>Do not call this directly. Concrete implementation of <see cref="!:IClientGrainFactory.GetStreamProviderAsync(string streamProviderName)"/>.</summary>
+            <returns>stream provider interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.ClientGrainFactory.GetStreamProvider(System.String)">
+            <summary>Do not call this directly. Concrete implementation of <see cref="!:IClientGrainFactory.GetStreamProvider(string streamProviderName)"/>.</summary>
+            <returns>stream provider interface</returns>
+        </member>
+        <member name="T:RB.OrleansClient.IClientGrainFactory">
+            <summary>
+            The Primary use of this assembly is this interface. The concrete implementation (ClientGrainFactory) 
+            should be used "behind the scenes" to setup the Orleans configuration. Typically this is done by a 
+            dependency injection framework like Autofac.
+            
+            Inside Autofac, use one of the <see cref="T:RB.OrleansClient.ClientGrainFactory"/> constructors to create the object.
+            
+            One last note: It is a good idea to use <see cref="M:RB.OrleansClient.OrleansClientConnector.UninitializeOrleans"/>
+            at the exit point of your program.
+            </summary>
+            <remarks>
+            Always try to use Dependency Injection (Autofac, etc.) to create the concrete implementation of this
+            interface: i.e. your constructor looks something like:
+            "MyCommunicationClass(IClientGrainFactory clientGrainFactory)" 
+            </remarks>
+        </member>
+        <member name="M:RB.OrleansClient.IClientGrainFactory.GetGrainFactoryAsync">
+            <summary>
+            await for the connection to be made, then give me a IGrainFactory
+            </summary>
+            <returns>grain factory interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.IClientGrainFactory.GetGrainFactory">
+            <summary>
+            BLOCK for the connection to be made, then give me a IGrainFactory
+            </summary>
+            <returns>grain factory interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.IClientGrainFactory.GetStreamProviderAsync(System.String)">
+            <summary>
+            await for Orleans connection to be made, then give me a IStreamProvider
+            </summary>
+            <returns>stream provider interface</returns>
+        </member>
+        <member name="M:RB.OrleansClient.IClientGrainFactory.GetStreamProvider(System.String)">
+            <summary>
+            BLOCK for Orleans connection to be made, then give me a IStreamProvider
+            </summary>
+            <returns>stream provider interface</returns>
+        </member>
+        <member name="T:RB.OrleansClient.OrleansClientConnector">
+            <summary>
+            The Primary use of this assembly is the interface <see cref="T:RB.OrleansClient.IClientGrainFactory"/>. A developer
+            using the IClientGrainFactory shouldn't need to get in here and use this class directly.
+            
+            This OrleansClientConnector class is an "Orleans Helper" used by the <see cref="T:RB.OrleansClient.ClientGrainFactory"/> implementation of 
+            IClientGrainFactory.
+            </summary>
+        </member>
+        <member name="P:RB.OrleansClient.OrleansClientConnector.MaxOrleansInitRetries">
+            <summary>How many times does Polly retry</summary>
+        </member>
+        <member name="P:RB.OrleansClient.OrleansClientConnector.PollyRetriesCount">
+            <summary>How many times did Polly retry before it gave up or got connected</summary>
+        </member>
+        <member name="E:RB.OrleansClient.OrleansClientConnector.OrleansInitComplete">
+            <summary>Hook up an event if you want to know when the Orleans Client has made its connection</summary>
+        </member>
+        <member name="P:RB.OrleansClient.OrleansClientConnector.OrleansInitialized">
+            <summary>Is the Orleans Initialization complete yet?</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.#ctor">
+            <summary>Don't use this</summary>
+        </member>
+        <member name="F:RB.OrleansClient.OrleansClientConnector.lazy">
+            <summary>Its a singleton. DO NOT USE THIS!</summary>
+        </member>
+        <member name="P:RB.OrleansClient.OrleansClientConnector.Instance">
+            <summary>Its a singleton. DO NOT USE THIS!</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.BeSureYouRunThisOnce(Orleans.Runtime.Configuration.ClientConfiguration)">
+            <summary>Internal setup of Orleans Client. DO NOT USE THIS!</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.BeginInit(System.IO.FileInfo)">
+            <summary>Used by one of the <see cref="T:RB.OrleansClient.ClientGrainFactory"/> constructors to start up Orleans using config as code</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.BeginInit(Orleans.Runtime.Configuration.ClientConfiguration)">
+            <summary>Used by one of the <see cref="T:RB.OrleansClient.ClientGrainFactory"/> constructors to start up Orleans using config with an XML file</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.PrepareOrleansClient(Orleans.Runtime.Configuration.ClientConfiguration)">
+            <summary>Use Polly to setup the Orleans Client. DO NOT USE THIS!</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.ConfigureOrleansClient(System.IO.FileInfo)">
+            <summary>Logic to build the Orleans Client configuration. DO NOT USE THIS!</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.FireOrleansInitComplete">
+            <summary>Part of the OrleansInitComplete event above. DO NOT USE THIS!</summary>
+        </member>
+        <member name="M:RB.OrleansClient.OrleansClientConnector.UninitializeOrleans">
+            <summary>Tell Orleans to shut down. This should be one of the very last things your program does.</summary>
+        </member>
+    </members>
+</doc>
