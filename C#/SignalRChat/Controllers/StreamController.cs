@@ -75,11 +75,14 @@ namespace SignalRChat.Controllers
             var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
 
+            
+
+
             var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
 
             var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
 
-            var streamHandle = await stream.SubscribeAsync((o, token) =>
+            MvcApplication._streamHandle = await stream.SubscribeAsync((o, token) =>
                 {
                     dynamic newDynamicObject = o;
                     //Console.ForegroundColor = ConsoleColor.Yellow;
