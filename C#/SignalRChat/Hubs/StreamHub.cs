@@ -16,69 +16,69 @@ namespace SignalRChat.Hubs
 {
     public class StreamHub : Hub
     {
-        private Task _me;
+        //private Task _me;
 
-        public StreamHub() : base()
-        {
+        //public StreamHub() : base()
+        //{
 
-            var config = new ClientConfiguration();
-            config.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
-            config.DataConnectionString =
-                @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
-            config.DeploymentId = "R5Ent-v1.0";
+        //    var config = new ClientConfiguration();
+        //    config.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
+        //    config.DataConnectionString =
+        //        @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
+        //    config.DeploymentId = "R5Ent-v1.0";
 
-            config.AddSimpleMessageStreamProvider("NCI-BRC");
-            config.AddSimpleMessageStreamProvider("NCI-PCC");
+        //    config.AddSimpleMessageStreamProvider("NCI-BRC");
+        //    config.AddSimpleMessageStreamProvider("NCI-PCC");
 
-            config.DefaultTraceLevel = Severity.Warning;
-
-
-            IClientGrainFactory factory = new ClientGrainFactory(config);
-
-            var strInfo = new WhatsHappeningModel()
-            {
-                StreamId = Guid.Parse("b01efcfa-ee7b-4e72-9f06-edacebd79f8f"),
-                NameSpace = "1*902",
-                ProviderName = "NCI-PCC"
-            };
+        //    config.DefaultTraceLevel = Severity.Warning;
 
 
-            this._me = Task.Run(async () =>
-            {
+        //    IClientGrainFactory factory = new ClientGrainFactory(config);
+
+        //    var strInfo = new WhatsHappeningModel()
+        //    {
+        //        StreamId = Guid.Parse("b01efcfa-ee7b-4e72-9f06-edacebd79f8f"),
+        //        NameSpace = "1*902",
+        //        ProviderName = "NCI-PCC"
+        //    };
 
 
-                var streamProv = await factory.GetStreamProviderAsync(strInfo.ProviderName);
-
-                var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
-
-                await stream.SubscribeAsync((o, token) =>
-                    {
-                        dynamic newDynamicObject = o;
-                        //Console.ForegroundColor = ConsoleColor.Yellow;
-                        //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
-                        //Console.ForegroundColor = ConsoleColor.White;
-
-                        //Console.WriteLine(newDynamicObject.ToString());
-                        //Console.WriteLine(o.ToString());
+        //    this._me = Task.Run(async () =>
+        //    {
 
 
-                        UpdateData(strInfo, o.ToString());
+        //        var streamProv = await factory.GetStreamProviderAsync(strInfo.ProviderName);
+
+        //        var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
+
+        //        await stream.SubscribeAsync((o, token) =>
+        //            {
+        //                dynamic newDynamicObject = o;
+        //                //Console.ForegroundColor = ConsoleColor.Yellow;
+        //                //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
+        //                //Console.ForegroundColor = ConsoleColor.White;
+
+        //                //Console.WriteLine(newDynamicObject.ToString());
+        //                //Console.WriteLine(o.ToString());
 
 
-                        return TaskDone.Done;
-                    }, exception =>
-                    {
-
-                        UpdateData(strInfo, exception.ToString());
+        //                UpdateData(strInfo, o.ToString());
 
 
-                        //Console.WriteLine(exception);
-                        return TaskDone.Done;
-                    },
-                    () => TaskDone.Done);
-            });
+        //                return TaskDone.Done;
+        //            }, exception =>
+        //            {
 
-        }
+        //                UpdateData(strInfo, exception.ToString());
+
+
+        //                //Console.WriteLine(exception);
+        //                return TaskDone.Done;
+        //            },
+        //            () => TaskDone.Done);
+        //    });
+
+        //}
 
 
 

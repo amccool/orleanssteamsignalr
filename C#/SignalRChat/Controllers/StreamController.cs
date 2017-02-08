@@ -20,22 +20,27 @@ namespace SignalRChat.Controllers
         private IClientGrainFactory _factory;
 
         //public StreamController(IClientGrainFactory factory)
-        public StreamController()
+        //public StreamController()
+        //{
+        //    var config = new ClientConfiguration();
+        //    config.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
+        //    config.DataConnectionString =
+        //        @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
+        //    config.DeploymentId = "R5Ent-v1.0";
+
+        //    config.AddSimpleMessageStreamProvider("NCI-BRC");
+        //    config.AddSimpleMessageStreamProvider("NCI-PCC");
+
+        //    config.DefaultTraceLevel = Severity.Warning;
+
+
+        //    IClientGrainFactory factory = new ClientGrainFactory(config);
+
+        //    this._factory = factory;
+        //}
+
+        public StreamController(IClientGrainFactory factory)
         {
-            var config = new ClientConfiguration();
-            config.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
-            config.DataConnectionString =
-                @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
-            config.DeploymentId = "R5Ent-v1.0";
-
-            config.AddSimpleMessageStreamProvider("NCI-BRC");
-            config.AddSimpleMessageStreamProvider("NCI-PCC");
-
-            config.DefaultTraceLevel = Severity.Warning;
-
-
-            IClientGrainFactory factory = new ClientGrainFactory(config);
-
             this._factory = factory;
         }
 
@@ -71,43 +76,47 @@ namespace SignalRChat.Controllers
         // GET: Stream/Details/5
         public async Task<ActionResult> Details(WhatsHappeningModel strInfo)
         {
+            if (MvcApplication._subscriptions.ContainsKey(strInfo))
+            {
+                //uh we have it?
+            }
+            else
+            {
 
+                var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
+
+                var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
+
+                var streamHandle = await stream.SubscribeAsync((o, token) =>
+                    {
+                        dynamic newDynamicObject = o;
+                        //Console.ForegroundColor = ConsoleColor.Yellow;
+                        //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
+                        //Console.ForegroundColor = ConsoleColor.White;
+
+                        //Console.WriteLine(newDynamicObject.ToString());
+                        //Console.WriteLine(o.ToString());
             var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
 
-            
+                        context.Clients.All.UpdateData(strInfo, o.ToString());
 
 
-            var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
+                        return TaskDone.Done;
+                    }, exception =>
+                    {
+            var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
-            var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
-
-            MvcApplication._streamHandle = await stream.SubscribeAsync((o, token) =>
-                {
-                    dynamic newDynamicObject = o;
-                    //Console.ForegroundColor = ConsoleColor.Yellow;
-                    //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
-                    //Console.ForegroundColor = ConsoleColor.White;
-
-                    //Console.WriteLine(newDynamicObject.ToString());
-                    //Console.WriteLine(o.ToString());
+                        context.Clients.All.UpdateData(strInfo, exception.ToString());
 
 
-                    context.Clients.All.UpdateData(strInfo, o.ToString());
+                        //Console.WriteLine(exception);
+                        return TaskDone.Done;
+                    },
+                    () => TaskDone.Done);
 
-
-                    return TaskDone.Done;
-                }, exception =>
-                {
-
-                    context.Clients.All.UpdateData(strInfo, exception.ToString());
-
-
-                    //Console.WriteLine(exception);
-                    return TaskDone.Done;
-                },
-                () => TaskDone.Done);
-
+                MvcApplication._subscriptions.Add(strInfo, streamHandle);
+            }
 
 
 
