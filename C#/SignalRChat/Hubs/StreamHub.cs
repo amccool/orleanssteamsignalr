@@ -16,6 +16,14 @@ namespace SignalRChat.Hubs
 {
     public class StreamHub : Hub
     {
+        private IClientGrainFactory _factory;
+        private List<StreamSubscriptionHandle<object>> handles = new List<StreamSubscriptionHandle<object>>();
+
+        public StreamHub(IClientGrainFactory factory) : base()
+        {
+            this._factory = factory;
+        }
+
         //private Task _me;
 
         //public StreamHub() : base()
@@ -103,7 +111,43 @@ namespace SignalRChat.Hubs
         public void UpdateData(WhatsHappeningModel streamInfo, string msg)
         {
             // Call the addNewMessageToPage method to update clients.
-            Clients.All.addNewMessageToPage(streamInfo, msg);
+            Clients.All.addNewMessageToPage($"{streamInfo.StreamId}-{streamInfo.ProviderName}-{streamInfo.NameSpace}", msg);
+        }
+
+
+        public async Task SubscribeToStream(WhatsHappeningModel strInfo)
+        {
+            var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
+
+            var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
+
+            this.handles.Add( await stream.SubscribeAsync((o, token) =>
+                {
+                    dynamic newDynamicObject = o;
+                            //Console.ForegroundColor = ConsoleColor.Yellow;
+                            //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
+                            //Console.ForegroundColor = ConsoleColor.White;
+
+                            //Console.WriteLine(newDynamicObject.ToString());
+                            //Console.WriteLine(o.ToString());
+
+
+                            UpdateData(strInfo, o.ToString());
+
+
+                    return TaskDone.Done;
+                }, exception =>
+                {
+
+                    UpdateData(strInfo, exception.ToString());
+
+
+                            //Console.WriteLine(exception);
+                            return TaskDone.Done;
+                },
+                () => TaskDone.Done)
+                );
+
         }
 
     }

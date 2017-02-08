@@ -9,12 +9,58 @@ using Microsoft.Owin;
 using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using RB.OrleansClient;
+using SignalRChat.Hubs;
 
 [assembly: OwinStartup(typeof(SignalRChat.Startup))]
 namespace SignalRChat
 {
     public class Startup
     {
+        //public void ConfigurationCCCC(IAppBuilder app)
+        //{
+        //    GlobalHost.DependencyResolver.Register(
+        //            typeof(StreamHub),
+        //            () => new StreamHub(MakeFactory()));
+
+        //    app.MapSignalR();
+        //}
+
+
+        private IClientGrainFactory MakeFactory()
+        {
+            ClientConfiguration clientConfiguration = null;
+            try
+            {
+                var mappedPath = System.Web.Hosting.HostingEnvironment.MapPath("~/ClientConfiguration.xml");
+                if (File.Exists(mappedPath))
+                {
+                    clientConfiguration = ClientConfiguration.LoadFromFile(mappedPath);
+
+                }
+                else
+                {
+                    clientConfiguration = new ClientConfiguration();
+                    clientConfiguration.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
+                    clientConfiguration.DataConnectionString =
+                        @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
+                    clientConfiguration.DeploymentId = "R5Ent-v1.0";
+
+                    clientConfiguration.AddSimpleMessageStreamProvider("NCI-BRC");
+                    clientConfiguration.AddSimpleMessageStreamProvider("NCI-PCC");
+
+                    clientConfiguration.DefaultTraceLevel = Severity.Warning;
+
+                }
+            }
+            catch
+            {
+            }
+
+            return new ClientGrainFactory(clientConfiguration);
+        }
+
+
+
         public void Configuration(IAppBuilder app)
         {
             // Any connection or hub wire up and configuration should go here
@@ -22,6 +68,45 @@ namespace SignalRChat
 
 
             var builder = new ContainerBuilder();
+
+
+
+            builder
+                .Register(c =>
+                {
+                    ClientConfiguration clientConfiguration = null;
+                    try
+                    {
+                        var mappedPath = System.Web.Hosting.HostingEnvironment.MapPath("~/ClientConfiguration.xml");
+                        if (File.Exists(mappedPath))
+                        {
+                            clientConfiguration = ClientConfiguration.LoadFromFile(mappedPath);
+
+                        }
+                        else
+                        {
+                            clientConfiguration = new ClientConfiguration();
+                            clientConfiguration.GatewayProvider = ClientConfiguration.GatewayProviderType.SqlServer;
+                            clientConfiguration.DataConnectionString =
+                                @"Server=NCI-R5ESQL01.dev-r5ead.net\MSSQLSVR02;Database=orleans;User ID=orleans;password=orleans;";
+                            clientConfiguration.DeploymentId = "R5Ent-v1.0";
+
+                            clientConfiguration.AddSimpleMessageStreamProvider("NCI-BRC");
+                            clientConfiguration.AddSimpleMessageStreamProvider("NCI-PCC");
+
+                            clientConfiguration.DefaultTraceLevel = Severity.Warning;
+
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    return new ClientGrainFactory(clientConfiguration);
+                })
+                .As<IClientGrainFactory>()
+                .SingleInstance();
+
 
 
 

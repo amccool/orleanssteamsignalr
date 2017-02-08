@@ -35,10 +35,15 @@
             //$('#message').focus();
             // Start the connection.
 
+            shub.server.SubscribeToStream(model).done(function() {
+                console.log('subscribed');
+                $('#discussion').append('<li>subscribed</li>');
+            });
+
 
             $.connection.hub.start().done(function () {
-
-                $('#discussion').append('xxxxxxxxxxxxxx');
+                console.log('started');
+                $('#discussion').append('<li>xxxxxxxxxxxxxx</li>');
 
                 //$('#sendmessage').click(function () {
                 //    // Call the Send method on the hub.

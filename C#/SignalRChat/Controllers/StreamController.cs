@@ -76,47 +76,50 @@ namespace SignalRChat.Controllers
         // GET: Stream/Details/5
         public async Task<ActionResult> Details(WhatsHappeningModel strInfo)
         {
-            if (MvcApplication._subscriptions.ContainsKey(strInfo))
-            {
-                //uh we have it?
-            }
-            else
-            {
-
-                var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
-
-                var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
-
-                var streamHandle = await stream.SubscribeAsync((o, token) =>
-                    {
-                        dynamic newDynamicObject = o;
-                        //Console.ForegroundColor = ConsoleColor.Yellow;
-                        //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
-                        //Console.ForegroundColor = ConsoleColor.White;
-
-                        //Console.WriteLine(newDynamicObject.ToString());
-                        //Console.WriteLine(o.ToString());
             var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
 
-                        context.Clients.All.UpdateData(strInfo, o.ToString());
+            //if (MvcApplication._subscriptions.ContainsKey(strInfo))
+            //{
+            //    //uh we have it?
+            //}
+            //else
+            //{
+
+            //    var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
+
+            //    var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);
+
+            //    var streamHandle = await stream.SubscribeAsync((o, token) =>
+            //        {
+            //            dynamic newDynamicObject = o;
+            //            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //            //Console.Write($"[{DateTime.Now.ToString("yyyy-M-d HH:mm:ss.FF")}]  ");
+            //            //Console.ForegroundColor = ConsoleColor.White;
+
+            //            //Console.WriteLine(newDynamicObject.ToString());
+            //            //Console.WriteLine(o.ToString());
+            //var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
 
-                        return TaskDone.Done;
-                    }, exception =>
-                    {
-            var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
-
-                        context.Clients.All.UpdateData(strInfo, exception.ToString());
+            //            context.Clients.All.UpdateData(strInfo, o.ToString());
 
 
-                        //Console.WriteLine(exception);
-                        return TaskDone.Done;
-                    },
-                    () => TaskDone.Done);
+            //            return TaskDone.Done;
+            //        }, exception =>
+            //        {
+            //var context = GlobalHost.ConnectionManager.GetHubContext<StreamHub>();
 
-                MvcApplication._subscriptions.Add(strInfo, streamHandle);
-            }
+            //            context.Clients.All.UpdateData(strInfo, exception.ToString());
+
+
+            //            //Console.WriteLine(exception);
+            //            return TaskDone.Done;
+            //        },
+            //        () => TaskDone.Done);
+
+            //    MvcApplication._subscriptions.Add(strInfo, streamHandle);
+            //}
 
 
 
