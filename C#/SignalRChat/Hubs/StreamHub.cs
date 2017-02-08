@@ -115,8 +115,14 @@ namespace SignalRChat.Hubs
         }
 
 
-        public async Task SubscribeToStream(WhatsHappeningModel strInfo)
+        public async Task SubscribeToStream(string guid, string provider, string nameSpace)
         {
+            WhatsHappeningModel strInfo = new WhatsHappeningModel()
+            {
+                 StreamId = Guid.Parse(guid),
+                 ProviderName = provider,
+                 NameSpace = nameSpace
+            };
             var streamProv = await this._factory.GetStreamProviderAsync(strInfo.ProviderName);
 
             var stream = streamProv.GetStream<object>(strInfo.StreamId, strInfo.NameSpace);

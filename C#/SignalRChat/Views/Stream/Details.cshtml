@@ -6,6 +6,8 @@
 <h2>Stream for @Model.StreamId @Model.ProviderName @Model.NameSpace</h2>
 
 <div class="container">
+    <input type="button" id="sendmessage" value="Subscription" />
+    
     <ul id="discussion"></ul>
 </div>
 
@@ -19,15 +21,15 @@
     <script src="~/signalr/hubs"></script>
     <!--SignalR script to update the chat page and send messages.-->
     <script>
-        $(function () {
+        $(function() {
             // Reference the auto-generated proxy for the hub.
             var shub = $.connection.streamHub;
 
             // Create a function that the hub can call back to display messages.
-            shub.client.addNewMessageToPage = function (info, message) {
+            shub.client.addNewMessageToPage = function(info, message) {
                 // Add the message to the page.
-                $('#discussion').append('<li><strong>' + htmlEncode(info)
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
+                $('#discussion')
+                    .append('<li><strong>' + htmlEncode(info) + '</strong>: ' + htmlEncode(message) + '</li>');
             };
             // Get the user name and store it to prepend to messages.
             //$('#displayname').val(prompt('Enter your name:', ''));
@@ -35,26 +37,33 @@
             //$('#message').focus();
             // Start the connection.
 
-            shub.server.SubscribeToStream(model).done(function() {
-                console.log('subscribed');
-                $('#discussion').append('<li>subscribed</li>');
-            });
+
+            $.connection.hub.start()
+                .done(function() {
+                    console.log('started');
+                    $('#discussion').append('<li>xxxxxxxxxxxxxx</li>');
+
+                    //$('#sendmessage').click(function () {
+                    //    // Call the Send method on the hub.
+                    //    shub.server.send($('#displayname').val(), $('#message').val());
+                    //    // Clear text box and reset focus for next comment.
+                    //    $('#message').val('').focus();
+                    //});
+                })
+                .fail(function() {
+                    console.log('connection failed');
+                });
 
 
-            $.connection.hub.start().done(function () {
-                console.log('started');
-                $('#discussion').append('<li>xxxxxxxxxxxxxx</li>');
+            $('#sendmessage')
+                .click(function() {
+                    shub.server.subscribeToStream('@Model.StreamId', '@Model.ProviderName', '@Model.NameSpace')
+                        .done(function() {
+                            console.log('subscribed');
+                            $('#discussion').append('<li>subscribed</li>');
+                        });
 
-                //$('#sendmessage').click(function () {
-                //    // Call the Send method on the hub.
-                //    shub.server.send($('#displayname').val(), $('#message').val());
-                //    // Clear text box and reset focus for next comment.
-                //    $('#message').val('').focus();
-                //});
-            });
-
-
-
+                });
 
 
             //$.connection.hub.start().done(function () {
@@ -66,6 +75,7 @@
             //    });
             //});
         });
+
         // This optional function html-encodes messages for display in the page.
         function htmlEncode(value) {
             var encodedValue = $('<div />').text(value).html();
